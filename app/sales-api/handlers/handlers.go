@@ -30,6 +30,7 @@ func API(build string, shutdown chan os.Signal, log *log.Logger, db *sqlx.DB) *w
 	}
 	app.Handle(http.MethodGet, "/v1/users/", ug.query)
 	app.Handle(http.MethodPost, "/v1/users/", ug.create)
+	app.Handle(http.MethodGet, "/v1/users/:id/", ug.queryByID)
 
 	// Register category management endpoints
 	cg := categoryGroup{

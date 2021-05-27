@@ -55,14 +55,16 @@ CREATE TABLE categories (
 		Script: `
 CREATE TABLE adverts (
 	uuid		  UUID,
-	user_uuid     UUID REFERENCES users(uuid) NOT NULL,
-	category_uuid UUID REFERENCES categories(uuid) NOT NULL,
+	user_uuid     UUID NOT NULL,
+	category_uuid UUID NOT NULL,
 	title         VARCHAR(256) NOT NULL,
 	description   TEXT NOT NULL,
 	location      TEXT NOT NULL DEFAULT '',
 	price         INTEGER NOT NULL,
 	created TIMESTAMP,
 	updated TIMESTAMP,
-	PRIMARY KEY (uuid)
+	PRIMARY KEY (uuid),
+	FOREIGN KEY (user_uuid) REFERENCES users(uuid) ON DELETE CASCADE,
+	FOREIGN KEY (category_uuid) REFERENCES categories(uuid) ON DELETE CASCADE
 );`},
 }
