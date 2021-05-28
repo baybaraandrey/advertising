@@ -89,9 +89,13 @@ func run(log *log.Logger) error {
 		if err := commands.Migrate(dbConfig); err != nil {
 			return errors.Wrap(err, "migrating database")
 		}
-
+	case "seed":
+		if err := commands.Seed(dbConfig); err != nil {
+			return errors.Wrap(err, "seeding database")
+		}
 	default:
 		fmt.Println("migrate: create the schema in the database")
+		fmt.Println("seed: seeds the database")
 		return commands.ErrHelp
 	}
 
