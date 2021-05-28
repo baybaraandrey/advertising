@@ -40,8 +40,8 @@ func (ug userGroup) queryByID(ctx context.Context, w http.ResponseWriter, r *htt
 		return web.NewShutdownError("web value missing from context")
 	}
 
-	params := web.Params(r)
-	usr, err := ug.user.QueryByID(ctx, v.TraceID, params["id"])
+	id := web.Param(r, "id")
+	usr, err := ug.user.QueryByID(ctx, v.TraceID, id)
 	if err != nil {
 		switch err {
 		case user.ErrInvalidID:
@@ -51,7 +51,7 @@ func (ug userGroup) queryByID(ctx context.Context, w http.ResponseWriter, r *htt
 		case user.ErrForbidden:
 			return web.NewRequestError(err, http.StatusForbidden)
 		default:
-			return errors.Wrapf(err, "Id: %s", params["id"])
+			return errors.Wrapf(err, "Id: %s", id)
 		}
 	}
 

@@ -5,7 +5,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/baybaraandrey/advertising/business/sys/validate"
 	"github.com/baybaraandrey/advertising/foundation/web"
+	"github.com/pkg/errors"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -35,8 +37,30 @@ func Errors(log *log.Logger) web.Middleware {
 				// Log the error.
 				log.Printf("%s : ERROR     : %v", v.TraceID, err)
 
-				// Respond to the error.
-				if err := web.RespondError(ctx, w, err); err != nil {
+				// Build out the error response.
+				var er validate.ErrorResponse
+				var status int
+				switch act := errors.Cause(err).(type) {
+				case validate.FieldErrors:
+					er = validate.ErrorResponse{
+						Error:  "data validation error",
+						Fields: act.Error(),
+					}
+					status = http.StatusBadRequest
+				case *validate.RequestError:
+					er = validate.ErrorResponse{
+						Error: act.Error(),
+					}
+					status = act.Status
+				default:
+					er = validate.ErrorResponse{
+						Error: http.StatusText(http.StatusInternalServerError),
+					}
+					status = http.StatusInternalServerError
+				}
+
+				// Respond with the error back to the client.
+				if err := web.Respond(ctx, w, er, status); err != nil {
 					return err
 				}
 

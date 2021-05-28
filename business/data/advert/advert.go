@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"github.com/baybaraandrey/advertising/foundation/database"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/otel/trace"
@@ -24,9 +25,17 @@ func New(log *log.Logger, db *sqlx.DB) Advert {
 }
 
 // Query retrieves a list of existing categories from the database.
-func (c Advert) Query(ctx context.Context, traceID string) ([]Info, error) {
+func (a Advert) Query(ctx context.Context, traceID string, limit int, offset int) ([]Info, error) {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "business.data.advert.query")
 	defer span.End()
+
+	data := struct {
+		Limit  int `db:"limit"`
+		Offset int `db:"offset"`
+	}{
+		Limit:  limit,
+		Offset: offset,
+	}
 
 	const q = `
 	SELECT 
@@ -46,11 +55,12 @@ func (c Advert) Query(ctx context.Context, traceID string) ([]Info, error) {
 	FROM adverts 
 		INNER JOIN users ON adverts.user_uuid = users.uuid 
 		INNER JOIN categories ON adverts.category_uuid = categories.uuid
-	ORDER BY  adverts.uuid ASC
+	ORDER BY adverts.uuid ASC
+	LIMIT :limit OFFSET :offset
 	;`
 
 	adverts := []Info{}
-	if err := c.db.SelectContext(ctx, &adverts, q); err != nil {
+	if err := database.NamedQuerySlice(ctx, a.db, q, data, &adverts); err != nil {
 		return nil, errors.Wrap(err, "selecting categories")
 	}
 

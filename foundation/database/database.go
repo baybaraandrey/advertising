@@ -2,8 +2,10 @@ package database
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/url"
+	"reflect"
 	"strings"
 	"time"
 
@@ -101,4 +103,32 @@ func Log(query string, args ...interface{}) string {
 	}
 
 	return query
+}
+
+// NamedQuerySlice is a helper function for executing queries that return a
+// collection of data to be unmarshaled into a slice.
+func NamedQuerySlice(ctx context.Context, db *sqlx.DB, query string, data interface{}, dest interface{}) error {
+	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "foundation.database.namedqueryslice")
+	defer span.End()
+
+	val := reflect.ValueOf(dest)
+	if val.Kind() != reflect.Ptr || val.Elem().Kind() != reflect.Slice {
+		return errors.New("must provide a pointer to a slice")
+	}
+
+	rows, err := db.NamedQueryContext(ctx, query, data)
+	if err != nil {
+		return err
+	}
+
+	slice := val.Elem()
+	for rows.Next() {
+		v := reflect.New(slice.Type().Elem())
+		if err := rows.StructScan(v.Interface()); err != nil {
+			return err
+		}
+		slice.Set(reflect.Append(slice, v.Elem()))
+	}
+
+	return nil
 }
