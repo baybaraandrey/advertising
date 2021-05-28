@@ -2,6 +2,7 @@ package advert
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/baybaraandrey/advertising/foundation/database"
@@ -25,9 +26,14 @@ func New(log *log.Logger, db *sqlx.DB) Advert {
 }
 
 // Query retrieves a list of existing categories from the database.
-func (a Advert) Query(ctx context.Context, traceID string, limit int, offset int) ([]Info, error) {
+func (a Advert) Query(ctx context.Context, traceID string, limit int, offset int, filters map[string][]string) ([]Info, error) {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "business.data.advert.query")
 	defer span.End()
+
+	allowedFilters := map[string]string{
+		"category_uuid": "categories.uuid",
+		"user_uuid":     "users.uuid",
+	}
 
 	data := struct {
 		Limit  int `db:"limit"`
@@ -37,7 +43,8 @@ func (a Advert) Query(ctx context.Context, traceID string, limit int, offset int
 		Offset: offset,
 	}
 
-	const q = `
+	filterString := database.BuildFilterString(filters, allowedFilters)
+	q := fmt.Sprintf(`
 	SELECT 
 		adverts.*,
 		users.uuid "user.uuid",
@@ -55,9 +62,13 @@ func (a Advert) Query(ctx context.Context, traceID string, limit int, offset int
 	FROM adverts 
 		INNER JOIN users ON adverts.user_uuid = users.uuid 
 		INNER JOIN categories ON adverts.category_uuid = categories.uuid
+	%s
 	ORDER BY adverts.uuid ASC
-	LIMIT :limit OFFSET :offset
-	;`
+	LIMIT :limit OFFSET :offset;`, filterString)
+
+	log.Printf("%s : %s : query : %s", traceID, "advert.Query",
+		database.Log(q),
+	)
 
 	adverts := []Info{}
 	if err := database.NamedQuerySlice(ctx, a.db, q, data, &adverts); err != nil {

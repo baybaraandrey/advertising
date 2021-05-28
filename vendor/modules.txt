@@ -1,6 +1,8 @@
 # github.com/ardanlabs/conf v1.4.0
 ## explicit
 github.com/ardanlabs/conf
+# github.com/davecgh/go-spew v1.1.1
+## explicit
 # github.com/dimfeld/httptreemux/v5 v5.3.0
 ## explicit
 github.com/dimfeld/httptreemux/v5
@@ -49,9 +51,11 @@ go.opentelemetry.io/otel/trace
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blowfish
 golang.org/x/crypto/sha3
-# golang.org/x/sys v0.0.0-20201119102817-f84b799fce68
+# golang.org/x/sys v0.0.0-20210525143221-35b2ab0089ea
+## explicit
 golang.org/x/sys/cpu
-# golang.org/x/text v0.3.3
+# golang.org/x/text v0.3.6
+## explicit
 golang.org/x/text/internal/language
 golang.org/x/text/internal/language/compact
 golang.org/x/text/internal/tag
@@ -62,3 +66,5 @@ golang.org/x/text/language
 ## explicit
 gopkg.in/go-playground/validator.v9
 gopkg.in/go-playground/validator.v9/translations/en
+# gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+## explicit

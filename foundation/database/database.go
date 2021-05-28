@@ -132,3 +132,24 @@ func NamedQuerySlice(ctx context.Context, db *sqlx.DB, query string, data interf
 
 	return nil
 }
+
+// BuildFilterString ...
+func BuildFilterString(filters map[string][]string, allowedFilters map[string]string) string {
+	filterString := "WHERE 1=1"
+	for filterKey, filterValList := range filters {
+		if realFilterName, ok := allowedFilters[filterKey]; ok {
+			if len(filterValList) == 0 {
+				continue
+			}
+
+			filterString = fmt.Sprintf(
+				"%s AND %s IN (%s)",
+				filterString,
+				realFilterName,
+				fmt.Sprintf("'%s'", strings.Join(filterValList, "','")),
+			)
+		}
+	}
+
+	return filterString
+}

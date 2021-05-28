@@ -25,25 +25,22 @@ func (ag advertGroup) query(ctx context.Context, w http.ResponseWriter, r *http.
 		return web.NewShutdownError("web value missing from context")
 	}
 
-	offset, ok := r.URL.Query()["offset"]
-	if !ok || len(offset[0]) < 1 {
-		return validate.NewRequestError(fmt.Errorf("invalid offset format: %v", offset), http.StatusBadRequest)
-	}
-	offsetNumber, err := strconv.Atoi(offset[0])
+	offset := r.URL.Query().Get("offset")
+	offsetNumber, err := strconv.Atoi(offset)
 	if err != nil {
 		return validate.NewRequestError(fmt.Errorf("invalid offset format: %s", offset), http.StatusBadRequest)
 	}
 
-	limit := r.URL.Query()["limit"]
-	if !ok || len(limit[0]) < 1 {
-		return validate.NewRequestError(fmt.Errorf("invalid offset format: %v", limit), http.StatusBadRequest)
-	}
-	limitNumber, err := strconv.Atoi(limit[0])
+	limit := r.URL.Query().Get("limit")
+	limitNumber, err := strconv.Atoi(limit)
 	if err != nil {
 		return validate.NewRequestError(fmt.Errorf("invalid limit format: %s", limit), http.StatusBadRequest)
 	}
+	r.URL.Query().Del("offset")
+	r.URL.Query().Del("limit")
 
-	adverts, err := ag.advert.Query(ctx, v.TraceID, limitNumber, offsetNumber)
+	filters := map[string][]string(r.URL.Query())
+	adverts, err := ag.advert.Query(ctx, v.TraceID, limitNumber, offsetNumber, filters)
 	if err != nil {
 		return err
 	}

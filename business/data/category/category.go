@@ -61,6 +61,10 @@ func (c Category) Query(ctx context.Context, traceID string) ([]CategoryInfo, er
 
 	const q = `SELECT * FROM categories`
 
+	log.Printf("%s : %s : query : %s", traceID, "category.Query",
+		database.Log(q),
+	)
+
 	categories := []CategoryInfo{}
 	if err := c.db.SelectContext(ctx, &categories, q); err != nil {
 		return nil, errors.Wrap(err, "selecting categories")
