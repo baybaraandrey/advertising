@@ -2,8 +2,8 @@ package category
 
 import "time"
 
-// Info represent an individual category.
-type Info struct {
+// CategoryInfo represent an individual category.
+type CategoryInfo struct {
 	ID      string    `db:"uuid" json:"id"`
 	Name    string    `db:"name" json:"name"`
 	Created time.Time `db:"created" json:"created"`

@@ -27,11 +27,11 @@ func New(log *log.Logger, db *sqlx.DB) Category {
 }
 
 // Create inserts a new category into the database.
-func (c Category) Create(ctx context.Context, traceID string, nc NewCategory, now time.Time) (Info, error) {
+func (c Category) Create(ctx context.Context, traceID string, nc NewCategory, now time.Time) (CategoryInfo, error) {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "internal.data.user.create")
 	defer span.End()
 
-	category := Info{
+	category := CategoryInfo{
 		ID:      uuid.New().String(),
 		Name:    nc.Name,
 		Created: now.UTC(),
@@ -47,7 +47,7 @@ func (c Category) Create(ctx context.Context, traceID string, nc NewCategory, no
 	)
 
 	if _, err := c.db.ExecContext(ctx, q, category.ID, category.Name, category.Created, category.Updated); err != nil {
-		return Info{}, errors.Wrap(err, "inserting category")
+		return CategoryInfo{}, errors.Wrap(err, "inserting category")
 	}
 
 	return category, nil
@@ -55,13 +55,13 @@ func (c Category) Create(ctx context.Context, traceID string, nc NewCategory, no
 }
 
 // Query retrieves a list of existing categories from the database.
-func (c Category) Query(ctx context.Context, traceID string) ([]Info, error) {
+func (c Category) Query(ctx context.Context, traceID string) ([]CategoryInfo, error) {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "business.data.category.query")
 	defer span.End()
 
 	const q = `SELECT * FROM categories`
 
-	categories := []Info{}
+	categories := []CategoryInfo{}
 	if err := c.db.SelectContext(ctx, &categories, q); err != nil {
 		return nil, errors.Wrap(err, "selecting categories")
 	}

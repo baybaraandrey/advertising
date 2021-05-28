@@ -45,16 +45,16 @@ func New(log *log.Logger, db *sqlx.DB) User {
 }
 
 // Create inserts a new user into the database.
-func (u User) Create(ctx context.Context, traceID string, nu NewUser, now time.Time) (Info, error) {
+func (u User) Create(ctx context.Context, traceID string, nu NewUser, now time.Time) (UserInfo, error) {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "internal.data.user.create")
 	defer span.End()
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(nu.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return Info{}, errors.Wrap(err, "generating password hash")
+		return UserInfo{}, errors.Wrap(err, "generating password hash")
 	}
 
-	usr := Info{
+	usr := UserInfo{
 		ID:           uuid.New().String(),
 		Name:         nu.Name,
 		Email:        nu.Email,
@@ -74,14 +74,14 @@ func (u User) Create(ctx context.Context, traceID string, nu NewUser, now time.T
 	)
 
 	if _, err = u.db.ExecContext(ctx, q, usr.ID, usr.Name, usr.Email, usr.Phone, usr.PasswordHash, usr.Roles, usr.Created, usr.Updated); err != nil {
-		return Info{}, errors.Wrap(err, "inserting user")
+		return UserInfo{}, errors.Wrap(err, "inserting user")
 	}
 
 	return usr, nil
 }
 
 // Query retrieves a list of existing users from the database.
-func (u User) Query(ctx context.Context, traceID string) ([]Info, error) {
+func (u User) Query(ctx context.Context, traceID string) ([]UserInfo, error) {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "business.data.user.query")
 	defer span.End()
 
@@ -91,7 +91,7 @@ func (u User) Query(ctx context.Context, traceID string) ([]Info, error) {
 		database.Log(q),
 	)
 
-	users := []Info{}
+	users := []UserInfo{}
 	if err := u.db.SelectContext(ctx, &users, q); err != nil {
 		return nil, errors.Wrap(err, "selecting users")
 	}
@@ -100,12 +100,12 @@ func (u User) Query(ctx context.Context, traceID string) ([]Info, error) {
 }
 
 // QueryByID gets the specified user from the database.
-func (u User) QueryByID(ctx context.Context, traceID string, userID string) (Info, error) {
+func (u User) QueryByID(ctx context.Context, traceID string, userID string) (UserInfo, error) {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "business.data.user.querybyid")
 	defer span.End()
 
 	if _, err := uuid.Parse(userID); err != nil {
-		return Info{}, ErrInvalidID
+		return UserInfo{}, ErrInvalidID
 	}
 
 	const q = `SELECT * FROM users WHERE uuid = $1`
@@ -114,12 +114,12 @@ func (u User) QueryByID(ctx context.Context, traceID string, userID string) (Inf
 		database.Log(q, userID),
 	)
 
-	var usr Info
+	var usr UserInfo
 	if err := u.db.GetContext(ctx, &usr, q, userID); err != nil {
 		if err == sql.ErrNoRows {
-			return Info{}, ErrNotFound
+			return UserInfo{}, ErrNotFound
 		}
-		return Info{}, errors.Wrapf(err, "selecting user %q", userID)
+		return UserInfo{}, errors.Wrapf(err, "selecting user %q", userID)
 	}
 
 	return usr, nil
