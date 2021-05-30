@@ -15,7 +15,7 @@ Install Advertising
 make build         # Build application.
 make migrate       # Migrate database tables.
 make seed          # Populate database tables with data.
-make serve         # Serve application
+make serve         # Serve application.
 make doc           # Generate swagger documentation.
 ```
 
