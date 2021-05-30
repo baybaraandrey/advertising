@@ -24,6 +24,10 @@ tidy:
 	go mod vendor
 
 
+.PHONY: doc
+doc:
+	swag init --dir app/sales-api/ --parseDependency true 
+
 
 
 all: serve

@@ -37,6 +37,12 @@ func (cg categoryGroup) create(ctx context.Context, w http.ResponseWriter, r *ht
 	return web.Respond(ctx, w, c, http.StatusCreated)
 }
 
+// @Summary get categories
+// @Description get all categories
+// @Produce  json
+// @Success 200 {object} []category.CategoryInfo
+// @Router /v1/categories/ [get]
+// @Tags category
 func (cg categoryGroup) query(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "handlers.category.list")
 	defer span.End()

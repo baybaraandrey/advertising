@@ -15,6 +15,16 @@ type checkGroup struct {
 	db  *sqlx.DB
 }
 
+type health struct {
+	Status string `json:"status"`
+}
+
+// @Summary check health
+// @Description check health
+// @Produce  json
+// @Success 200 {object} health
+// @Router /v1/rediness/ [get]
+// @Tags health
 func (c checkGroup) readiness(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	status := "ok"
 	code := http.StatusOK
@@ -23,9 +33,7 @@ func (c checkGroup) readiness(ctx context.Context, w http.ResponseWriter, r *htt
 		status = "db not ready"
 		code = http.StatusInternalServerError
 	}
-	health := struct {
-		Status string `json:"status"`
-	}{
+	health := health{
 		Status: status,
 	}
 

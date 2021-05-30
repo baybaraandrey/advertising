@@ -14,6 +14,12 @@ type userGroup struct {
 	user user.User
 }
 
+// @Summary get users
+// @Description get all users
+// @Produce  json
+// @Success 200 {object} []user.UserInfo
+// @Router /v1/users/ [get]
+// @Tags user
 func (ug userGroup) query(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "handlers.user.list")
 	defer span.End()

@@ -16,6 +16,12 @@ type advertGroup struct {
 	advert advert.Advert
 }
 
+// @Summary get adverts
+// @Description get all adverts
+// @Produce  json
+// @Success 200 {object} []advert.AdvertInfo
+// @Router /v1/adverts/ [get]
+// @Tags advert
 func (ag advertGroup) query(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "handlers.user.list")
 	defer span.End()

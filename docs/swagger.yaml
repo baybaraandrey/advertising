@@ -1,0 +1,127 @@
+basePath: /api
+definitions:
+  advert.AdvertInfo:
+    properties:
+      category:
+        $ref: '#/definitions/category.CategoryInfo'
+      category_uuid:
+        type: string
+      created:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      location:
+        type: string
+      price:
+        type: integer
+      title:
+        type: string
+      updated:
+        type: string
+      user:
+        $ref: '#/definitions/user.UserInfo'
+      user_uuid:
+        type: string
+    type: object
+  category.CategoryInfo:
+    properties:
+      created:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated:
+        type: string
+    type: object
+  handlers.health:
+    properties:
+      status:
+        type: string
+    type: object
+  user.UserInfo:
+    properties:
+      created:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      roles:
+        items:
+          type: string
+        type: array
+      updated:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  title: Swagger SALES-API
+  version: 0.0.1
+paths:
+  /v1/adverts/:
+    get:
+      description: get all adverts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/advert.AdvertInfo'
+            type: array
+      summary: get adverts
+      tags:
+      - advert
+  /v1/categories/:
+    get:
+      description: get all categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/category.CategoryInfo'
+            type: array
+      summary: get categories
+      tags:
+      - category
+  /v1/rediness/:
+    get:
+      description: check health
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.health'
+      summary: check health
+      tags:
+      - health
+  /v1/users/:
+    get:
+      description: get all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/user.UserInfo'
+            type: array
+      summary: get users
+      tags:
+      - user
+swagger: "2.0"

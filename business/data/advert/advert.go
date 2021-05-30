@@ -26,7 +26,7 @@ func New(log *log.Logger, db *sqlx.DB) Advert {
 }
 
 // Query retrieves a list of existing categories from the database.
-func (a Advert) Query(ctx context.Context, traceID string, limit int, offset int, filters map[string][]string) ([]Info, error) {
+func (a Advert) Query(ctx context.Context, traceID string, limit int, offset int, filters map[string][]string) ([]AdvertInfo, error) {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "business.data.advert.query")
 	defer span.End()
 
@@ -70,7 +70,7 @@ func (a Advert) Query(ctx context.Context, traceID string, limit int, offset int
 		database.Log(q),
 	)
 
-	adverts := []Info{}
+	adverts := []AdvertInfo{}
 	if err := database.NamedQuerySlice(ctx, a.db, q, data, &adverts); err != nil {
 		return nil, errors.Wrap(err, "selecting categories")
 	}
