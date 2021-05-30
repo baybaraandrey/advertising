@@ -1,4 +1,5 @@
 SHELL := /bin/bash
+APP_DOCKER_COMPOSE=docker-compose.yml
 
 
 # // To generate a private/public key PEM file.
@@ -21,3 +22,25 @@ tests:
 tidy:
 	go mod tidy
 	go mod vendor
+
+
+
+
+all: serve
+
+
+.PHONY: build
+build:
+	docker-compose -f ${APP_DOCKER_COMPOSE} build 
+
+.PHONY: serve
+serve:
+	@docker-compose -f ${APP_DOCKER_COMPOSE} up --remove-orphans
+
+.PHONY: migrate
+migrate:
+	@docker-compose -f ${APP_DOCKER_COMPOSE} run --rm --entrypoint="./admin-cli migrate" sales-api
+
+.PHONY: seed
+seed:
+	@docker-compose -f ${APP_DOCKER_COMPOSE} run --rm --entrypoint="./admin-cli seed" sales-api

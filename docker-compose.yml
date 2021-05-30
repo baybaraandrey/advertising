@@ -1,0 +1,53 @@
+version: '3.7'
+
+services:
+  sales-api:
+    image: sales-api/sales-api:${VERSION:-latest}
+    build:
+        context: .
+    restart: always
+    volumes:
+        - sales-api:/usr/src/app/
+    environment:
+        SALES_WEB_API_HOST: '${SALES_WEB_API_HOST:-0.0.0.0:3000}'
+        SALES_WEB_DEBUG_HOST: '${SALES_WEB_DEBUG_HOST:-0.0.0.0:4000}'
+        SALES_WEB_READ_TIMEOUT: '${SALES_WEB_READ_TIMEOUT:-5s}'
+        SALES_WEB_WRITE_TIMEOUT: '${SALES_WEB_WRITE_TIMEOUT:-5s}'
+        SALES_WEB_SHUTDOWN_TIMEOUT: '${SALES_WEB_SHUTDOWN_TIMEOUT:-5s}'
+        SALES_DB_USER: '${SALES_DB_USER:-sales}'
+        SALES_DB_PASSWORD: '${SALES_DB_PASSWORD:-sales}'
+        SALES_DB_HOST: '${SALES_DB_HOST:-postgresql}'
+        SALES_DB_NAME: '${SALES_DB_NAME:-sales}'
+        SALES_DB_NAME: '${SALES_DB_NAME:-sales}'
+        SALES_DB_MAX_IDLE: '${SALES_DB_MAX_IDLE:-5}'
+        SALES_DB_MAX_OPEN_CONNS: '${SALES_DB_MAX_OPEN_CONNS:-5}'
+        SALES_DB_DISABLE_TLS: '${SALES_DB_DISABLE_TLS:-true}'
+    ports:
+      - '3000:3000'
+      - '4000:4000'
+    depends_on:
+      - postgresql
+    networks:
+      - backend
+
+  postgresql:
+    image: postgres:11
+    restart: always
+    volumes:
+      - 'postgresql-data:/var/lib/postgresql/data'
+    environment:
+        POSTGRES_PASSWORD: '${POSTGRES_PASSWORD:-sales}'
+        POSTGRES_USER: '${POSTGRES_USER:-sales}'
+        POSTGRES_DB: '${POSTGRES_DB:-sales}'
+        POSTGRES_HOST: '${POSTGRES_HOST:-postgresql}'
+        POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  sales-api: {}
+  postgresql-data: {}
