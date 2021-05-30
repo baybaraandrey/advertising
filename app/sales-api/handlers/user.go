@@ -64,6 +64,14 @@ func (ug userGroup) queryByID(ctx context.Context, w http.ResponseWriter, r *htt
 	return web.Respond(ctx, w, usr, http.StatusOK)
 }
 
+// @Summary create a user
+// @Description create a user
+// @Accept  json
+// @Produce  json
+// @Param query body user.NewUser true "create a user"
+// @Success 201 {object} user.NewUser
+// @Router /v1/users/ [post]
+// @Tags user
 func (ug userGroup) create(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "handlers.user.create")
 	defer span.End()
