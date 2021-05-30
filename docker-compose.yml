@@ -19,7 +19,7 @@ services:
         SALES_DB_HOST: '${SALES_DB_HOST:-postgresql}'
         SALES_DB_NAME: '${SALES_DB_NAME:-sales}'
         SALES_DB_NAME: '${SALES_DB_NAME:-sales}'
-        SALES_DB_MAX_IDLE: '${SALES_DB_MAX_IDLE:-5}'
+        SALES_DB_MAX_IDLE_CONNS: '${SALES_DB_MAX_IDLE_CONNS:-5}'
         SALES_DB_MAX_OPEN_CONNS: '${SALES_DB_MAX_OPEN_CONNS:-5}'
         SALES_DB_DISABLE_TLS: '${SALES_DB_DISABLE_TLS:-true}'
     ports:
@@ -29,6 +29,14 @@ services:
       - postgresql
     networks:
       - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
 
   postgresql:
     image: postgres:11
@@ -43,6 +51,14 @@ services:
         POSTGRES_PORT: ${POSTGRES_PORT:-5432}
     networks:
       - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 100M
+        reservations:
+          cpus: '0.25'
+          memory: 50M
 
 networks:
   backend:
