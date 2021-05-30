@@ -41,6 +41,29 @@ definitions:
       status:
         type: string
     type: object
+  user.NewUser:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      password_confirm:
+        type: string
+      phone:
+        type: string
+      roles:
+        items:
+          type: string
+        type: array
+    required:
+    - email
+    - name
+    - password
+    - phone
+    - roles
+    type: object
   user.UserInfo:
     properties:
       created:
@@ -122,6 +145,27 @@ paths:
               $ref: '#/definitions/user.UserInfo'
             type: array
       summary: get users
+      tags:
+      - user
+    post:
+      consumes:
+      - application/json
+      description: create a user
+      parameters:
+      - description: create a user
+        in: body
+        name: query
+        required: true
+        schema:
+          $ref: '#/definitions/user.NewUser'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/user.NewUser'
+      summary: create a user
       tags:
       - user
 swagger: "2.0"
