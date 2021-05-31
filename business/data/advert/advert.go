@@ -2,6 +2,7 @@ package advert
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"time"
@@ -11,6 +12,14 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/otel/trace"
+)
+
+var (
+	// ErrNotFound is used when a specific User is requested but does not exist.
+	ErrNotFound = errors.New("not found")
+
+	// ErrInvalidID occurs when an ID is not in a valid form.
+	ErrInvalidID = errors.New("ID is not in its proper form")
 )
 
 // Advert ...
@@ -141,4 +150,111 @@ func (a Advert) TotalActive(ctx context.Context, traceID string) (int, error) {
 	}
 
 	return count.Count, nil
+}
+
+// QueryByID gets the specified advert from the database.
+func (a Advert) QueryByID(ctx context.Context, traceID string, advertID string) (AdvertInfo, error) {
+	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "business.data.advert.querybyid")
+	defer span.End()
+
+	if _, err := uuid.Parse(advertID); err != nil {
+		return AdvertInfo{}, ErrInvalidID
+	}
+
+	const q = `
+	SELECT 
+		adverts.*,
+		users.uuid "user.uuid",
+		users.name "user.name",
+		users.email "user.email",
+		users.phone "user.phone",
+		users.roles "user.roles",
+		users.created "user.created",
+		users.updated "user.updated",
+
+		categories.uuid "category.uuid",
+		categories.name "category.name",
+		categories.created "category.created",
+		categories.updated "category.updated"
+	FROM adverts 
+		INNER JOIN users ON adverts.user_uuid = users.uuid 
+		INNER JOIN categories ON adverts.category_uuid = categories.uuid
+	WHERE adverts.uuid = $1
+	`
+
+	a.log.Printf("%s : %s : query : %s", traceID, "advert.QueryByID",
+		database.Log(q, advertID),
+	)
+
+	var adv AdvertInfo
+	if err := a.db.GetContext(ctx, &adv, q, advertID); err != nil {
+		if err == sql.ErrNoRows {
+			return AdvertInfo{}, ErrNotFound
+		}
+		return AdvertInfo{}, errors.Wrapf(err, "selecting advert %q", advertID)
+	}
+
+	return adv, nil
+}
+
+// Deactivate deactivate advert.
+func (a Advert) Deactivate(ctx context.Context, traceID string, id string) (AdvertInfo, error) {
+	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "business.data.advert.deactivate")
+	defer span.End()
+
+	adv, err := a.QueryByID(ctx, traceID, id)
+	if err != nil {
+		return adv, errors.Wrap(err, "deactivating advert")
+	}
+
+	adv.IsActive = false
+
+	const q = `
+	UPDATE
+		adverts
+	SET
+		"is_active" = :is_active
+	WHERE
+		uuid = :uuid`
+
+	log.Printf("%s : %s : query : %s", traceID, "advert.Deactivate",
+		database.Log(q, adv),
+	)
+
+	if _, err := a.db.NamedExecContext(ctx, q, adv); err != nil {
+		return AdvertInfo{}, errors.Wrapf(err, "deactivating advert %s", adv.ID)
+	}
+
+	return adv, nil
+}
+
+// Activate deactivate advert.
+func (a Advert) Activate(ctx context.Context, traceID string, id string) (AdvertInfo, error) {
+	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "business.data.advert.activate")
+	defer span.End()
+
+	adv, err := a.QueryByID(ctx, traceID, id)
+	if err != nil {
+		return adv, errors.Wrap(err, "activating advert")
+	}
+
+	adv.IsActive = true
+
+	const q = `
+	UPDATE
+		adverts
+	SET
+		"is_active" = :is_active
+	WHERE
+		uuid = :uuid`
+
+	log.Printf("%s : %s : query : %s", traceID, "advert.Activate",
+		database.Log(q, adv),
+	)
+
+	if _, err := a.db.NamedExecContext(ctx, q, adv); err != nil {
+		return AdvertInfo{}, errors.Wrapf(err, "activating advert %s", adv.ID)
+	}
+
+	return adv, nil
 }

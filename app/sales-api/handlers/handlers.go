@@ -45,6 +45,9 @@ func API(build string, shutdown chan os.Signal, log *log.Logger, db *sqlx.DB) *w
 		advert: advert.New(log, db),
 	}
 	app.Handle(http.MethodGet, "/v1/adverts/", ag.query)
+	app.Handle(http.MethodGet, "/v1/adverts/:id/", ag.queryByID)
+	app.Handle(http.MethodPost, "/v1/adverts/:id/deactivate/", ag.deactivate)
+	app.Handle(http.MethodPost, "/v1/adverts/:id/activate/", ag.activate)
 	app.Handle(http.MethodPost, "/v1/adverts/", ag.create)
 
 	return app

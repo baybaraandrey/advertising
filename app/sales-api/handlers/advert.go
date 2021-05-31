@@ -100,6 +100,93 @@ func (ag advertGroup) create(ctx context.Context, w http.ResponseWriter, r *http
 	return web.Respond(ctx, w, adv, http.StatusCreated)
 }
 
+// @Summary get an advert by id
+// @Descriptionget an advert by id
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} advert.AdvertInfo
+// @Param id path int true "Advert ID"
+// @Router /v1/adverts/{id}/ [get]
+// @Tags advert
+func (ag advertGroup) queryByID(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "handlers.advert.retrieve")
+	defer span.End()
+
+	v, ok := ctx.Value(web.KeyValues).(*web.Values)
+	if !ok {
+		return web.NewShutdownError("web value missing from context")
+	}
+
+	id := web.Param(r, "id")
+	usr, err := ag.advert.QueryByID(ctx, v.TraceID, id)
+	if err != nil {
+		switch err {
+		case advert.ErrInvalidID:
+			return web.NewRequestError(err, http.StatusBadRequest)
+		case advert.ErrNotFound:
+			return web.NewRequestError(err, http.StatusNotFound)
+		default:
+			return errors.Wrapf(err, "Id: %s", id)
+		}
+	}
+
+	return web.Respond(ctx, w, usr, http.StatusOK)
+}
+
+// @Summary deactivate an advert
+// @Description deactivate an advert
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} advert.AdvertInfo
+// @Param id path int true "Advert ID"
+// @Router /v1/adverts/{id}/deactivate/ [post]
+// @Tags advert
+func (ag advertGroup) deactivate(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "handlers.advert.deactivate")
+	defer span.End()
+
+	v, ok := ctx.Value(web.KeyValues).(*web.Values)
+	if !ok {
+		return web.NewShutdownError("web value missing from context")
+	}
+
+	id := web.Param(r, "id")
+
+	adv, err := ag.advert.Deactivate(ctx, v.TraceID, id)
+	if err != nil {
+		return errors.Wrapf(err, "Advert: %+v", &adv)
+	}
+
+	return web.Respond(ctx, w, adv, http.StatusOK)
+}
+
+// @Summary activate an advert
+// @Description activate an advert
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} advert.AdvertInfo
+// @Param id path int true "Advert ID"
+// @Router /v1/adverts/{id}/activate/ [post]
+// @Tags advert
+func (ag advertGroup) activate(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "handlers.advert.activate")
+	defer span.End()
+
+	v, ok := ctx.Value(web.KeyValues).(*web.Values)
+	if !ok {
+		return web.NewShutdownError("web value missing from context")
+	}
+
+	id := web.Param(r, "id")
+
+	adv, err := ag.advert.Activate(ctx, v.TraceID, id)
+	if err != nil {
+		return errors.Wrapf(err, "Advert: %+v", &adv)
+	}
+
+	return web.Respond(ctx, w, adv, http.StatusOK)
+}
+
 type paginatedLimitOffsetAdvertResponse struct {
 	*web.PaginatedLimitOffsetResponse
 	Results []advert.AdvertInfo `json:"results"`
