@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/baybaraandrey/advertising/foundation/database"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/otel/trace"
@@ -77,6 +79,39 @@ func (a Advert) Query(ctx context.Context, traceID string, limit int, offset int
 	}
 
 	return adverts, nil
+}
+
+// Create creates new advert
+func (a Advert) Create(ctx context.Context, traceID string, na NewAdvert, now time.Time) (Info, error) {
+	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "business.data.advert.create")
+	defer span.End()
+
+	adv := Info{
+		ID:          uuid.New().String(),
+		UserID:      na.UserID,
+		CategoryID:  na.CategoryID,
+		Title:       na.Title,
+		Description: na.Description,
+		Location:    na.Location,
+		Price:       na.Price,
+		IsActive:    true,
+		Created:     now.UTC(),
+		Updated:     now.UTC(),
+	}
+
+	const q = `INSERT INTO adverts
+	(uuid, user_uuid, category_uuid, title, description, location, price, is_active, created, updated)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+
+	log.Printf("%s : %s : query : %s", traceID, "advert.Create",
+		database.Log(q, adv.ID, adv.UserID, adv.CategoryID, adv.Title, adv.Description, adv.Location, adv.Price, adv.IsActive, adv.Created, adv.Updated),
+	)
+
+	if _, err := a.db.ExecContext(ctx, q, adv.ID, adv.UserID, adv.CategoryID, adv.Title, adv.Description, adv.Location, adv.Price, adv.IsActive, adv.Created, adv.Updated); err != nil {
+		return Info{}, errors.Wrap(err, "creating advert")
+	}
+
+	return adv, nil
 }
 
 // Query retrieves a total count of adverts from the database.
