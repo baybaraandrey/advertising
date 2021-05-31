@@ -12,6 +12,8 @@ definitions:
         type: string
       id:
         type: string
+      is_active:
+        type: boolean
       location:
         type: string
       price:
@@ -40,6 +42,21 @@ definitions:
     properties:
       status:
         type: string
+    type: object
+  handlers.paginatedLimitOffsetAdvertResponse:
+    properties:
+      limit:
+        type: integer
+      offset:
+        type: integer
+      records:
+        type: integer
+      results:
+        items:
+          $ref: '#/definitions/advert.AdvertInfo'
+        type: array
+      total:
+        type: integer
     type: object
   user.NewUser:
     properties:
@@ -98,9 +115,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/advert.AdvertInfo'
-            type: array
+            $ref: '#/definitions/handlers.paginatedLimitOffsetAdvertResponse'
       summary: get adverts
       tags:
       - advert

@@ -24,7 +24,7 @@ func Migrate(db *sqlx.DB) error {
 // consider a combined approach using a tool like packr or go-bindata.
 var migrations = []darwin.Migration{
 	{
-		Version:     1,
+		Version:     1.0,
 		Description: "Add users",
 		Script: `
 CREATE TABLE users (
@@ -39,7 +39,7 @@ CREATE TABLE users (
 	PRIMARY KEY (uuid)
 );`},
 	{
-		Version:     2,
+		Version:     1.1,
 		Description: "Add advert category",
 		Script: `
 CREATE TABLE categories (
@@ -50,7 +50,7 @@ CREATE TABLE categories (
 	PRIMARY KEY (uuid)
 );`},
 	{
-		Version:     3,
+		Version:     1.2,
 		Description: "Add advert",
 		Script: `
 CREATE TABLE adverts (
@@ -61,6 +61,7 @@ CREATE TABLE adverts (
 	description   TEXT NOT NULL,
 	location      TEXT NOT NULL DEFAULT '',
 	price         INTEGER NOT NULL,
+	is_active     BOOLEAN DEFAULT true,
 	created TIMESTAMP,
 	updated TIMESTAMP,
 	PRIMARY KEY (uuid),

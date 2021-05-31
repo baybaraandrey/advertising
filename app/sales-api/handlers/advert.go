@@ -19,7 +19,7 @@ type advertGroup struct {
 // @Summary get adverts
 // @Description get all adverts
 // @Produce  json
-// @Success 200 {object} []advert.AdvertInfo
+// @Success 200 {object} paginatedLimitOffsetAdvertResponse
 // @Router /v1/adverts/ [get]
 // @Tags advert
 func (ag advertGroup) query(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
@@ -51,5 +51,25 @@ func (ag advertGroup) query(ctx context.Context, w http.ResponseWriter, r *http.
 		return err
 	}
 
-	return web.Respond(ctx, w, adverts, http.StatusOK)
+	total, err := ag.advert.TotalActive(ctx, v.TraceID)
+	if err != nil {
+		return err
+	}
+
+	data := paginatedLimitOffsetAdvertResponse{
+		PaginatedLimitOffsetResponse: &web.PaginatedLimitOffsetResponse{
+			Limit:   limitNumber,
+			Offset:  offsetNumber,
+			Records: len(adverts),
+			Total:   total,
+		},
+		Results: adverts,
+	}
+
+	return web.Respond(ctx, w, data, http.StatusOK)
+}
+
+type paginatedLimitOffsetAdvertResponse struct {
+	*web.PaginatedLimitOffsetResponse
+	Results []advert.AdvertInfo `json:"results"`
 }

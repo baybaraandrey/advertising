@@ -38,10 +38,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/advert.AdvertInfo"
-                            }
+                            "$ref": "#/definitions/handlers.paginatedLimitOffsetAdvertResponse"
                         }
                     }
                 }
@@ -165,6 +162,9 @@ var doc = `{
                 "id": {
                     "type": "string"
                 },
+                "is_active": {
+                    "type": "boolean"
+                },
                 "location": {
                     "type": "string"
                 },
@@ -207,6 +207,29 @@ var doc = `{
             "properties": {
                 "status": {
                     "type": "string"
+                }
+            }
+        },
+        "handlers.paginatedLimitOffsetAdvertResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "records": {
+                    "type": "integer"
+                },
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/advert.AdvertInfo"
+                    }
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },

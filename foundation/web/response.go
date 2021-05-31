@@ -69,3 +69,11 @@ func RespondError(ctx context.Context, w http.ResponseWriter, err error) error {
 
 	return nil
 }
+
+// PaginatedLimitOffsetResponse ...
+type PaginatedLimitOffsetResponse struct {
+	Limit   int `json:"limit"`
+	Offset  int `json:"offset"`
+	Records int `json:"records"`
+	Total   int `json:"total"`
+}

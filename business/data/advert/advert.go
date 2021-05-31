@@ -33,6 +33,7 @@ func (a Advert) Query(ctx context.Context, traceID string, limit int, offset int
 	allowedFilters := map[string]string{
 		"category_uuid": "categories.uuid",
 		"user_uuid":     "users.uuid",
+		"is_active":     "adverts.is_active",
 	}
 
 	data := struct {
@@ -76,4 +77,33 @@ func (a Advert) Query(ctx context.Context, traceID string, limit int, offset int
 	}
 
 	return adverts, nil
+}
+
+// Query retrieves a total count of adverts from the database.
+func (a Advert) TotalActive(ctx context.Context, traceID string) (int, error) {
+	ctx, span := trace.SpanFromContext(ctx).Tracer().Start(ctx, "business.data.advert.total")
+	defer span.End()
+
+	q := fmt.Sprintf(`
+	SELECT 
+		count(*) as c
+	FROM adverts 
+		INNER JOIN users ON adverts.user_uuid = users.uuid 
+		INNER JOIN categories ON adverts.category_uuid = categories.uuid
+	WHERE adverts.is_active IN ('true')
+	`)
+
+	log.Printf("%s : %s : query : %s", traceID, "advert.Total",
+		database.Log(q),
+	)
+
+	count := struct {
+		Count int `db:"c"`
+	}{}
+
+	if err := a.db.Get(&count, q); err != nil {
+		return 0, errors.Wrap(err, "selecting adverts total count")
+	}
+
+	return count.Count, nil
 }
