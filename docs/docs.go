@@ -76,6 +76,101 @@ var doc = `{
                 }
             }
         },
+        "/v1/adverts/{id}/": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "advert"
+                ],
+                "summary": "get an advert by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Advert ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/advert.AdvertInfo"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/adverts/{id}/activate/": {
+            "post": {
+                "description": "activate an advert",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "advert"
+                ],
+                "summary": "activate an advert",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Advert ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/advert.AdvertInfo"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/adverts/{id}/deactivate/": {
+            "post": {
+                "description": "deactivate an advert",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "advert"
+                ],
+                "summary": "deactivate an advert",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Advert ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/advert.AdvertInfo"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/categories/": {
             "get": {
                 "description": "get all categories",

@@ -178,6 +178,68 @@ paths:
       summary: create an advert
       tags:
       - advert
+  /v1/adverts/{id}/:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Advert ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/advert.AdvertInfo'
+      summary: get an advert by id
+      tags:
+      - advert
+  /v1/adverts/{id}/activate/:
+    post:
+      consumes:
+      - application/json
+      description: activate an advert
+      parameters:
+      - description: Advert ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/advert.AdvertInfo'
+      summary: activate an advert
+      tags:
+      - advert
+  /v1/adverts/{id}/deactivate/:
+    post:
+      consumes:
+      - application/json
+      description: deactivate an advert
+      parameters:
+      - description: Advert ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/advert.AdvertInfo'
+      summary: deactivate an advert
+      tags:
+      - advert
   /v1/categories/:
     get:
       description: get all categories
