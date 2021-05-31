@@ -42,6 +42,38 @@ var doc = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "description": "create an advert",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "advert"
+                ],
+                "summary": "create an advert",
+                "parameters": [
+                    {
+                        "description": "create an advert",
+                        "name": "query",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/advert.NewAdvert"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/advert.Info"
+                        }
+                    }
+                }
             }
         },
         "/v1/categories/": {
@@ -179,6 +211,64 @@ var doc = `{
                 },
                 "user": {
                     "$ref": "#/definitions/user.UserInfo"
+                },
+                "user_uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "advert.Info": {
+            "type": "object",
+            "properties": {
+                "category_uuid": {
+                    "type": "string"
+                },
+                "created": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated": {
+                    "type": "string"
+                },
+                "user_uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "advert.NewAdvert": {
+            "type": "object",
+            "properties": {
+                "category_uuid": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
                 },
                 "user_uuid": {
                     "type": "string"

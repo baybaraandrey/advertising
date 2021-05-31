@@ -27,6 +27,44 @@ definitions:
       user_uuid:
         type: string
     type: object
+  advert.Info:
+    properties:
+      category_uuid:
+        type: string
+      created:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      location:
+        type: string
+      price:
+        type: integer
+      title:
+        type: string
+      updated:
+        type: string
+      user_uuid:
+        type: string
+    type: object
+  advert.NewAdvert:
+    properties:
+      category_uuid:
+        type: string
+      description:
+        type: string
+      location:
+        type: string
+      price:
+        type: integer
+      title:
+        type: string
+      user_uuid:
+        type: string
+    type: object
   category.CategoryInfo:
     properties:
       created:
@@ -117,6 +155,27 @@ paths:
           schema:
             $ref: '#/definitions/handlers.paginatedLimitOffsetAdvertResponse'
       summary: get adverts
+      tags:
+      - advert
+    post:
+      consumes:
+      - application/json
+      description: create an advert
+      parameters:
+      - description: create an advert
+        in: body
+        name: query
+        required: true
+        schema:
+          $ref: '#/definitions/advert.NewAdvert'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/advert.Info'
+      summary: create an advert
       tags:
       - advert
   /v1/categories/:
